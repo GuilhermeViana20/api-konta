@@ -2,9 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Widgets\Concerns\FiltraPagamentos;
-use App\Models\Pagamento;
-use Carbon\Carbon;
+use App\Filament\Widgets\Concerns\FiltraTransacoes;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -12,15 +10,20 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class ProximosPagamentos extends BaseWidget
 {
-    use InteractsWithPageFilters, FiltraPagamentos;
+    use InteractsWithPageFilters, FiltraTransacoes;
 
-    protected int|string|array $columnSpan = 'full';
+    // ProximosPagamentos.php
+    protected int|string|array $columnSpan = [
+        'default' => 'full',
+        'md' => 'full',
+        'xl' => 'full',
+    ];
 
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Pagamentos do período')
-            ->query($this->pagamentosFiltrados()->orderBy('data_vencimento'))
+            ->heading('Contas do período')
+            ->query($this->transacoesFiltradas()->orderBy('data_vencimento'))
             ->columns([
                 Tables\Columns\TextColumn::make('descricao')->label('Descrição')->searchable(),
                 Tables\Columns\TextColumn::make('valor')->label('Valor')->money('BRL')->sortable(),
@@ -29,11 +32,11 @@ class ProximosPagamentos extends BaseWidget
                     ->label('Pago em')
                     ->date('d/m/Y')
                     ->placeholder('Em aberto')
-                    ->color(fn ($record) => $record->data_pagamento ? 'success' : 'danger'),
+                    ->color(fn($record) => $record->status === 'efetivada' ? 'success' : 'danger'),
             ])
             ->paginated([5, 10, 25])
             ->defaultPaginationPageOption(10)
-            ->emptyStateHeading('Nenhum pagamento no período')
+            ->emptyStateHeading('Nenhuma conta no período')
             ->emptyStateIcon('heroicon-o-check-circle');
     }
 }

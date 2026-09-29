@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -11,40 +11,47 @@ class Caixinha extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'usuario_id',
-        'nome',
-        'saldo',
-    ];
+    protected $fillable = ['usuario_id', 'nome', 'saldo'];
 
-    protected $casts = [
-        'saldo' => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return ['saldo' => 'decimal:2'];
+    }
 
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
-    public function pagamentos(): HasMany
+    public function transacoes(): HasMany
     {
-        return $this->hasMany(Pagamento::class);
+        return $this->hasMany(Transacao::class, 'caixinha_id');
     }
 
-    public function depositar(float $valor): void
+    public function historicos(): HasMany
     {
-        $this->increment('saldo', $valor);
+        return $this->hasMany(HistoricoMovimentacao::class, 'caixinha_id');
     }
 
-    public function sacar(float $valor): void
+    public function sacar(float $valor, ?string $descricao = null): void
     {
         $this->decrement('saldo', $valor);
+
+        $this->historicos()->create([
+            'tipo' => 'saida',
+            'valor' => $valor,
+            'descricao' => $descricao,
+        ]);
     }
 
-    protected static function booted(): void
+    public function depositar(float $valor, ?string $descricao = null): void
     {
-        static::creating(function ($caixinha) {
-            $caixinha->usuario_id ??= auth()->id();
-        });
+        $this->increment('saldo', $valor);
+
+        $this->historicos()->create([
+            'tipo' => 'entrada',
+            'valor' => $valor,
+            'descricao' => $descricao,
+        ]);
     }
 }

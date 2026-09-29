@@ -2,26 +2,41 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Widgets\FinancasOverview;
 use App\Filament\Widgets\ProximosPagamentos;
+use App\Filament\Widgets\ContasVencendoWidget;
+use App\Filament\Widgets\DespesasPorCategoriaChart;
+use App\Filament\Widgets\DespesasProxMesChart;
+use App\Filament\Widgets\ResumoFinanceiroWidget;
 use App\Models\Caixinha;
-use App\Models\Pagamento;
+use App\Models\Transacao;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use BackedEnum;
+use Filament\Support\Icons\Heroicon;
 
 class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
+    protected static ?int $navigationSort = -2;
+    protected static ?string $navigationLabel = 'Painel de Controle';
+
     public function filtersForm(Schema $schema): Schema
     {
+
         return $schema
             ->components([
                 Section::make()
+                    ->columnSpanFull()
+                    ->columns([
+                        'default' => 1,
+                        'md' => 3,
+                    ])
                     ->schema([
                         Select::make('mes')
                             ->label('Período')
@@ -59,31 +74,25 @@ class Dashboard extends BaseDashboard
                             ->native(false)
                             ->live(),
                     ])
-                    ->columns(3),
             ]);
     }
 
     public function getHeaderWidgetsColumns(): int|array
     {
-        return 5;
+        return 1;
     }
 
     public function getFooterWidgetsColumns(): int|array
     {
-        return [
-            'default' => 1,
-            'md' => 2,
-            'xl' => 2,
-        ];
+        return 1;
     }
 
     protected function getMesesDisponiveis(): array
     {
-        $mesesCadastrados = Pagamento::query()
+        $mesesCadastrados = Transacao::query()
             ->where('usuario_id', auth()->id())
-            ->selectRaw(
-                "DISTINCT DATE_FORMAT(data_vencimento, '%Y-%m') as mes"
-            )
+            ->where('tipo', 'despesa')
+            ->selectRaw("DISTINCT DATE_FORMAT(data_vencimento, '%Y-%m') as mes")
             ->pluck('mes')
             ->push(now()->format('Y-m'))
             ->unique()
@@ -93,10 +102,7 @@ class Dashboard extends BaseDashboard
 
         foreach ($mesesCadastrados as $mes) {
             $data = Carbon::createFromFormat('Y-m', $mes);
-
-            $meses[$mes] = ucfirst(
-                $data->translatedFormat('F/Y')
-            );
+            $meses[$mes] = ucfirst($data->translatedFormat('F/Y'));
         }
 
         return $meses;
@@ -105,7 +111,6 @@ class Dashboard extends BaseDashboard
     public function getHeaderWidgets(): array
     {
         return [
-            FinancasOverview::class,
         ];
     }
 
@@ -118,6 +123,11 @@ class Dashboard extends BaseDashboard
 
     public function getWidgets(): array
     {
-        return [];
+        return [
+            DespesasPorCategoriaChart::class,
+            DespesasProxMesChart::class,
+            ResumoFinanceiroWidget::class,
+            ContasVencendoWidget::class,
+        ];
     }
 }

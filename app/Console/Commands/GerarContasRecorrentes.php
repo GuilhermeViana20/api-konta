@@ -2,29 +2,29 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Pagamento;
+use App\Models\Transacao;
 use Illuminate\Console\Command;
 
 class GerarContasRecorrentes extends Command
 {
     protected $signature = 'contas:gerar-recorrentes';
 
-    protected $description = 'Gera as contas do próximo mês a partir dos pagamentos marcadas como recorrentes';
+    protected $description = 'Gera as transações do próximo mês a partir das despesas marcadas como recorrentes';
 
     public function handle(): void
     {
         $proximoMes = now()->addMonthNoOverflow();
 
-        // Pega os pagamentos recorrentes com vencimento no mês atual (o "template" do mês corrente)
-        $templates = Pagamento::recorrentes()
-            ->doMes()
-            ->get();
+        $templates = Transacao::recorrentes()->doMes()->get();
 
         $geradas = 0;
 
         foreach ($templates as $template) {
-            // Evita duplicar caso o comando rode mais de uma vez no período
-            $jaExiste = Pagamento::where('pagamento_origem_id', $template->pagamento_origem_id ?? $template->id)
+            $origemId = $template->transacao_origem_id ?? $template->id;
+
+            $jaExiste = Transacao::where(function ($q) use ($origemId) {
+                $q->where('transacao_origem_id', $origemId)->orWhere('id', $origemId);
+            })
                 ->doMes($proximoMes->month, $proximoMes->year)
                 ->exists();
 
@@ -32,27 +32,31 @@ class GerarContasRecorrentes extends Command
                 continue;
             }
 
-            // Se for parcelado (qtd_parcelas definido), para de gerar ao atingir o total
-            if ($template->qtd_parcelas && $template->parcela_atual >= $template->qtd_parcelas) {
+            if ($template->qtd_parcelas > 1 && $template->parcela_atual >= $template->qtd_parcelas) {
                 continue;
             }
 
-            Pagamento::create([
+            Transacao::create([
                 'usuario_id' => $template->usuario_id,
+                'conta_id' => $template->conta_id,
+                'categoria_id' => $template->categoria_id,
                 'caixinha_id' => $template->caixinha_id,
-                'pagamento_origem_id' => $template->pagamento_origem_id ?? $template->id,
+                'transacao_origem_id' => $origemId,
+                'tipo' => $template->tipo,
                 'descricao' => $template->descricao,
                 'valor' => $template->valor,
+                'forma_pagamento' => $template->forma_pagamento,
+                'status' => 'pendente',
                 'data_vencimento' => $template->data_vencimento->copy()->addMonthNoOverflow(),
                 'data_pagamento' => null,
                 'recorrente' => $template->recorrente,
-                'parcela_atual' => $template->parcela_atual ? $template->parcela_atual + 1 : null,
+                'parcela_atual' => $template->qtd_parcelas > 1 ? $template->parcela_atual + 1 : 1,
                 'qtd_parcelas' => $template->qtd_parcelas,
             ]);
 
             $geradas++;
         }
 
-        $this->info("Contas de {$proximoMes->format('m/Y')} geradas: {$geradas} de {$templates->count()} templates processados.");
+        $this->info("Transações de {$proximoMes->format('m/Y')} geradas: {$geradas} de {$templates->count()} templates processados.");
     }
 }

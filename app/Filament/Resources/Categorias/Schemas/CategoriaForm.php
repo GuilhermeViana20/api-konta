@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Caixinhas\Schemas;
+namespace App\Filament\Resources\Categorias\Schemas;
 
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
-class CaixinhaForm
+class CategoriaForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -17,10 +18,13 @@ class CaixinhaForm
                     ->required(),
                 TextInput::make('nome')
                     ->required(),
-                TextInput::make('saldo')
+                ColorPicker::make('cor')
                     ->required()
-                    ->numeric()
-                    ->default(0.0),
+                    ->default('#6366f1'),
+                Select::make('tipo')
+                    ->options(['receita' => 'Receita', 'despesa' => 'Despesa'])
+                    ->default('despesa')
+                    ->required(),
             ]);
     }
 }

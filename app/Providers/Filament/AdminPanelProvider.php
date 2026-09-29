@@ -18,6 +18,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin; // 1. IMPORT ADICIONADO AQUI
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -25,6 +26,7 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->brandName('Konta')
             ->id('admin')
             ->path('admin')
             ->login()
@@ -54,6 +56,48 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ]) // 2. PARÊNTESES DE FECHAMENTO CORRIGIDO AQUI
+            ->plugin(
+                FilamentFullCalendarPlugin::make()
+                    ->selectable()
+                    ->editable()
+                    ->config([
+                        // Define o idioma para português do Brasil
+                        'locale' => 'pt-br',
+                        
+                        // Define o primeiro dia da semana (0 = Domingo, 1 = Segunda)
+                        'firstDay' => 0,
+                        
+                        // Formato da hora nos eventos (ex: 14:30 em vez de 2:30 PM)
+                        'eventTimeFormat' => [
+                            'hour' => '2-digit',
+                            'minute' => '2-digit',
+                            'hour12' => false,
+                        ],
+                        
+                        // Formato da hora na barra lateral (quando na visualização de semana/dia)
+                        'slotLabelFormat' => [
+                            'hour' => '2-digit',
+                            'minute' => '2-digit',
+                            'hour12' => false,
+                        ],
+                        
+                        // Traduz os botões do cabeçalho
+                        'buttonText' => [
+                            'today' => 'Hoje',
+                            'month' => 'Mês',
+                            'week' => 'Semana',
+                            'day' => 'Dia',
+                            'list' => 'Lista'
+                        ],
+                        
+                        // Organização dos botões no topo do calendário
+                        'headerToolbar' => [
+                            'left' => 'prev,next today',
+                            'center' => 'title',
+                            'right' => 'dayGridMonth,timeGridWeek,timeGridDay'
+                        ],
+                    ])
+            ); // 3. PONTO E VÍRGULA FINAL CORRIGIDO AQUI
     }
 }
