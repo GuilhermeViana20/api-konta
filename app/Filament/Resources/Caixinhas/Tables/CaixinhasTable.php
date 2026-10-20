@@ -15,6 +15,7 @@ class CaixinhasTable
         return $table
             ->columns([
                 TextColumn::make('usuario.name')
+                    ->label('Usuário')
                     ->searchable(),
                 TextColumn::make('nome')
                     ->searchable(),

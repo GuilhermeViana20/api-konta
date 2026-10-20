@@ -25,14 +25,18 @@ class TransacoesTable
     {
         return $table
             ->columns([
-                TextColumn::make('descricao')->searchable(),
+                TextColumn::make('descricao')
+                    ->label('Descrição')
+                    ->searchable(),
                 TextColumn::make('categoria.nome')
                     ->badge()
                     ->color(fn ($record) => $record->categoria?->cor
                         ? Color::hex($record->categoria->cor)
                         : 'gray'),
                 TextColumn::make('valor')->money('BRL')->sortable(),
-                TextColumn::make('data_vencimento')->date('d/m/Y')->sortable(),
+                TextColumn::make('data_vencimento')
+                    ->label('Data Vencimento')
+                    ->date('d/m/Y')->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
