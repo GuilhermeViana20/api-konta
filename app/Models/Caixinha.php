@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Caixinha extends Model
 {
@@ -33,25 +34,31 @@ class Caixinha extends Model
         return $this->hasMany(HistoricoMovimentacao::class, 'caixinha_id');
     }
 
-    public function sacar(float $valor, ?string $descricao = null): void
+    public function sacar(float $valor, ?string $descricao = null, ?int $transacaoId = null): void
     {
-        $this->decrement('saldo', $valor);
+        DB::transaction(function () use ($valor, $descricao, $transacaoId) {
+            $this->decrement('saldo', $valor);
 
-        $this->historicos()->create([
-            'tipo' => 'saida',
-            'valor' => $valor,
-            'descricao' => $descricao,
-        ]);
+            $this->historicos()->create([
+                'tipo' => 'saida',
+                'valor' => $valor,
+                'descricao' => $descricao,
+                'transacao_id' => $transacaoId,
+            ]);
+        });
     }
 
-    public function depositar(float $valor, ?string $descricao = null): void
+    public function depositar(float $valor, ?string $descricao = null, ?int $transacaoId = null): void
     {
-        $this->increment('saldo', $valor);
+        DB::transaction(function () use ($valor, $descricao, $transacaoId) {
+            $this->increment('saldo', $valor);
 
-        $this->historicos()->create([
-            'tipo' => 'entrada',
-            'valor' => $valor,
-            'descricao' => $descricao,
-        ]);
+            $this->historicos()->create([
+                'tipo' => 'entrada',
+                'valor' => $valor,
+                'descricao' => $descricao,
+                'transacao_id' => $transacaoId,
+            ]);
+        });
     }
 }

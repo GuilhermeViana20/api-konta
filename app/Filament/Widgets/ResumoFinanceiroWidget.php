@@ -7,7 +7,6 @@ use App\Models\Transacao;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-
 class ResumoFinanceiroWidget extends StatsOverviewWidget
 {
     use FiltraTransacoes;
@@ -22,7 +21,7 @@ class ResumoFinanceiroWidget extends StatsOverviewWidget
         $base = fn () => Transacao::query()
             ->whereBetween('data_vencimento', [$inicio, $fim])
             ->where('status', '!=', 'cancelada');
-        
+
         $totalVencido = (clone $this->transacoesFiltradas())
             ->where('status', 'pendente')
             ->where('data_vencimento', '<', now())

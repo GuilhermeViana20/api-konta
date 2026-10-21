@@ -10,7 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class ProximosPagamentos extends BaseWidget
 {
-    use InteractsWithPageFilters, FiltraTransacoes;
+    use FiltraTransacoes, InteractsWithPageFilters;
 
     // ProximosPagamentos.php
     protected int|string|array $columnSpan = [
@@ -32,7 +32,7 @@ class ProximosPagamentos extends BaseWidget
                     ->label('Pago em')
                     ->date('d/m/Y')
                     ->placeholder('Em aberto')
-                    ->color(fn($record) => $record->status === 'efetivada' ? 'success' : 'danger'),
+                    ->color(fn ($record) => $record->status === 'paga' ? 'success' : 'danger'),
             ])
             ->paginated([5, 10, 25])
             ->defaultPaginationPageOption(10)

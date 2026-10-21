@@ -3,15 +3,16 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Transacao;
-use Illuminate\Database\Eloquent\Model;
-use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
+use Carbon\Carbon;
 use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Illuminate\Database\Eloquent\Model;
+use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
 
 class CalendarioVencimentosWidget extends FullCalendarWidget
 {
@@ -21,8 +22,8 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
     public function fetchEvents(array $fetchInfo): array
     {
         // Dispara evento pro StatsWidget
-        $this->dispatch('atualizarPeriodoStats', 
-            inicio: $fetchInfo['start'], 
+        $this->dispatch('atualizarPeriodoStats',
+            inicio: $fetchInfo['start'],
             fim: $fetchInfo['end']
         );
 
@@ -32,7 +33,7 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
             ->get()
             ->map(function (Transacao $transacao) {
                 // Define a cor baseada no tipo e status
-                $cor = match($transacao->tipo) {
+                $cor = match ($transacao->tipo) {
                     'receita' => '#10b981', // Verde
                     'despesa' => '#ef4444', // Vermelho
                     'transferencia' => '#3b82f6', // Azul
@@ -41,12 +42,12 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
 
                 // Se não estiver paga, deixa amarelo pra chamar atenção de que tá pendente
                 if ($transacao->status === 'pendente') {
-                    $cor = '#f59e0b'; 
+                    $cor = '#f59e0b';
                 }
 
                 return [
                     'id' => $transacao->id,
-                    'title' => $transacao->descricao . ' (R$ ' . number_format($transacao->valor, 2, ',', '.') . ')',
+                    'title' => $transacao->descricao.' (R$ '.number_format($transacao->valor, 2, ',', '.').')',
                     'start' => $transacao->data_vencimento->format('Y-m-d'),
                     'backgroundColor' => $cor,
                     'borderColor' => 'transparent',
@@ -70,17 +71,17 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
             TextInput::make('descricao')
                 ->label('Descrição')
                 ->required(),
-                
+
             TextInput::make('valor')
                 ->label('Valor')
                 ->numeric()
                 ->prefix('R$')
                 ->required(),
-                
+
             DatePicker::make('data_vencimento')
                 ->label('Data de Vencimento')
                 ->required(),
-                
+
             Select::make('status')
                 ->label('Status')
                 ->options([
@@ -97,8 +98,8 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
     {
         return [
             CreateAction::make()
-                ->form($this->getFormSchema()) 
-                
+                ->form($this->getFormSchema())
+
                 // Remova o tipo "?Form" e deixe apenas "$form"
                 ->mountUsing(function ($form, array $arguments) {
                     $form->fill([
@@ -107,12 +108,13 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
                 })
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['usuario_id'] = auth()->id();
+
                     return $data;
                 })
                 ->after(function () {
-                    $this->dispatch('filament-fullcalendar--refresh'); 
+                    $this->dispatch('filament-fullcalendar--refresh');
                     $this->dispatch('atualizarEstatisticas');
-                })
+                }),
         ];
     }
 
@@ -126,7 +128,7 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
                     $this->dispatch('filament-fullcalendar--refresh');
                     $this->dispatch('atualizarEstatisticas');
                 }),
-                
+
             DeleteAction::make()
                 ->after(function () {
                     // E aqui:
@@ -142,18 +144,18 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
 
         if ($transacao) {
             $transacao->update([
-                'data_vencimento' => \Carbon\Carbon::parse($event['start'])->format('Y-m-d'),
+                'data_vencimento' => Carbon::parse($event['start'])->format('Y-m-d'),
             ]);
-            
+
             // 1. Avisa o Javascript do calendário para recarregar visualmente
             $this->dispatch('filament-fullcalendar--refresh');
-            
+
             // 2. Avisa os cards de estatísticas
             $this->dispatch('atualizarEstatisticas');
-            
-            return true; 
+
+            return true;
         }
 
-        return false; 
+        return false;
     }
 }

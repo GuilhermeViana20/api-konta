@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Transacoes\Schemas;
 
 use App\Models\Caixinha;
 use App\Models\Categoria;
-use App\Models\Conta;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Transacoes\Tables;
 
 use App\Models\Transacao;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -12,6 +13,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -85,7 +87,7 @@ class TransacoesTable
                             return null;
                         }
 
-                        return 'Período: '.\Carbon\Carbon::createFromFormat('Y-m', $data['mes'])
+                        return 'Período: '.Carbon::createFromFormat('Y-m', $data['mes'])
                             ->translatedFormat('F/Y');
                     }),
             ])
@@ -200,8 +202,8 @@ class TransacoesTable
             return [];
         }
 
-        $inicio = \Carbon\Carbon::parse($primeira)->startOfMonth();
-        $fim = \Carbon\Carbon::parse($ultima)->startOfMonth();
+        $inicio = Carbon::parse($primeira)->startOfMonth();
+        $fim = Carbon::parse($ultima)->startOfMonth();
 
         $opcoes = [];
 

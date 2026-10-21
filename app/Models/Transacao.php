@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,9 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transacao extends Model
 {
-    protected $table = 'transacoes';
-
     use HasFactory;
+
+    protected $table = 'transacoes';
 
     protected $fillable = [
         'usuario_id', 'conta_id', 'categoria_id', 'caixinha_id', 'transacao_origem_id',
@@ -32,11 +34,6 @@ class Transacao extends Model
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
-    }
-
-    public function conta(): BelongsTo
-    {
-        return $this->belongsTo(Conta::class, 'conta_id');
     }
 
     public function categoria(): BelongsTo
@@ -76,7 +73,7 @@ class Transacao extends Model
 
     public function scopePagas(Builder $query): Builder
     {
-        return $query->where('status', 'efetivada');
+        return $query->where('status', 'paga');
     }
 
     public function scopeAtrasadas(Builder $query): Builder
@@ -98,14 +95,18 @@ class Transacao extends Model
 
     public function marcarComoPaga(?Carbon $data = null): void
     {
+        if ($this->status === 'paga') {
+            return;
+        }
+
         $this->data_pagamento = $data ?? now();
-        $this->status = 'efetivada';
+        $this->status = 'paga';
         $this->save();
 
         if ($this->caixinha) {
             match ($this->tipo) {
-                'despesa' => $this->caixinha->sacar((float) $this->valor),
-                'receita' => $this->caixinha->depositar((float) $this->valor),
+                'despesa' => $this->caixinha->sacar((float) $this->valor, $this->descricao, $this->id),
+                'receita' => $this->caixinha->depositar((float) $this->valor, $this->descricao, $this->id),
                 default => null,
             };
         }

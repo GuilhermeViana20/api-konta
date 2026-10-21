@@ -3,17 +3,19 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Transacao;
+use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Livewire\Attributes\On;
-use Carbon\Carbon;
 
 class ContasStatsWidget extends BaseWidget
 {
     protected static bool $isDiscovered = false;
 
     public ?string $dataInicio = null;
+
     public ?string $dataFim = null;
+
     public int $recarregar = 0;
 
     #[On('atualizarPeriodoStats')]
@@ -42,20 +44,20 @@ class ContasStatsWidget extends BaseWidget
         // Faz os cálculos
         $receitas = (clone $query)->where('tipo', 'receita')->sum('valor');
         $despesas = (clone $query)->where('tipo', 'despesa')->sum('valor');
-        
+
         $saldo = $receitas - $despesas;
 
         return [
-            Stat::make('Receitas Previstas', 'R$ ' . number_format($receitas, 2, ',', '.'))
+            Stat::make('Receitas Previstas', 'R$ '.number_format($receitas, 2, ',', '.'))
                 ->color('success')
                 ->icon('heroicon-o-arrow-trending-up'),
 
-            Stat::make('Despesas Previstas', 'R$ ' . number_format($despesas, 2, ',', '.'))
+            Stat::make('Despesas Previstas', 'R$ '.number_format($despesas, 2, ',', '.'))
                 ->color('danger')
                 ->icon('heroicon-o-arrow-trending-down'),
 
-            Stat::make('Saldo do Período', 'R$ ' . number_format($saldo, 2, ',', '.'))
-                ->description(Carbon::parse($inicio)->format('d/m/Y') . ' até ' . Carbon::parse($fim)->format('d/m/Y'))
+            Stat::make('Saldo do Período', 'R$ '.number_format($saldo, 2, ',', '.'))
+                ->description(Carbon::parse($inicio)->format('d/m/Y').' até '.Carbon::parse($fim)->format('d/m/Y'))
                 ->color($saldo >= 0 ? 'success' : 'danger') // Fica verde se sobrou dinheiro, vermelho se faltou
                 ->icon('heroicon-o-banknotes'),
         ];

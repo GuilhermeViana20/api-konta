@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use App\Repositories\TransacaoRepository;
 use App\Models\Transacao;
+use App\Repositories\TransacaoRepository;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ParcelamentoService
@@ -18,7 +19,7 @@ class ParcelamentoService
         return DB::transaction(function () use ($dados, $qtdParcelas, $valorTotal) {
             [$valorParcela, $diferenca] = $this->calcularValorParcela($valorTotal, $qtdParcelas);
 
-            $dataVencimento = \Carbon\Carbon::parse($dados['data_vencimento']);
+            $dataVencimento = Carbon::parse($dados['data_vencimento']);
 
             $origem = $this->repository->criar([
                 ...$dados,

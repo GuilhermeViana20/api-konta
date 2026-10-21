@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Transacoes;
 
-use App\Filament\Resources\Transacoes\Schemas\TransacoesForm;
 use App\Filament\Resources\Transacoes\Pages\CreateTransacoes;
 use App\Filament\Resources\Transacoes\Pages\EditTransacoes;
 use App\Filament\Resources\Transacoes\Pages\ListTransacoes;
+use App\Filament\Resources\Transacoes\Schemas\TransacoesForm;
 use App\Filament\Resources\Transacoes\Tables\TransacoesTable;
 use App\Models\Transacao;
 use BackedEnum;
@@ -20,11 +20,15 @@ class TransacoesResource extends Resource
     protected static ?string $model = Transacao::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
+
     protected static string|UnitEnum|null $navigationGroup = 'Financeiro';
+
     protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'Transação';
+
     protected static ?string $pluralModelLabel = 'Transações';
+
     protected static ?string $navigationLabel = 'Transações';
 
     public static function form(Schema $schema): Schema

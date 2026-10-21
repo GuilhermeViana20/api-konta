@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schedule;
-use App\Http\Controllers\Api\AuthController;
 
 Route::post('/register', [AuthController::class, 'register'])
     ->middleware('throttle:auth-register');

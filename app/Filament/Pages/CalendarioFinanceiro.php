@@ -11,9 +11,9 @@ class CalendarioFinanceiro extends Page
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $navigationLabel = 'Calendário';
-    
+
     protected static \UnitEnum|string|null $navigationGroup = 'Financeiro';
-    
+
     protected static ?int $navigationSort = 1;
 
     // Tipagem corrigida para bater exatamente com a classe BasePage
@@ -29,8 +29,8 @@ class CalendarioFinanceiro extends Page
         ];
     }
 
-    public function getHeaderWidgetsColumns(): int | array
+    public function getHeaderWidgetsColumns(): int|array
     {
-        return 1; 
+        return 1;
     }
 }

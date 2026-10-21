@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Categoria;
 use App\Models\Transacao;
+use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -11,7 +12,6 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
-use BackedEnum;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
@@ -20,7 +20,9 @@ class RelatorioTransacoes extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
+
     protected static string|UnitEnum|null $navigationGroup = 'Financeiro';
+
     protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Relatórios';
@@ -53,7 +55,7 @@ class RelatorioTransacoes extends Page implements HasForms
                     ->multiple()
                     ->searchable()
                     ->preload()
-                    ->options(fn() => Categoria::query()->orderBy('nome')->pluck('nome', 'id')),
+                    ->options(fn () => Categoria::query()->orderBy('nome')->pluck('nome', 'id')),
                 Select::make('tipo')
                     ->label('Tipo')
                     ->multiple()
@@ -90,20 +92,21 @@ class RelatorioTransacoes extends Page implements HasForms
         ]);
 
         return response()->streamDownload(
-            fn() => print($pdf->output()),
-            'relatorio-transacoes-' . now()->format('Y-m-d-His') . '.pdf'
+            fn () => print ($pdf->output()),
+            'relatorio-transacoes-'.now()->format('Y-m-d-His').'.pdf'
         );
     }
 
-    private function buscarTransacoes(array $filtros)
+    public function buscarTransacoes(array $filtros)
     {
         return Transacao::query()
+            ->where('usuario_id', auth()->id())
             ->with('categoria')
-            ->when($filtros['data_inicio'] ?? null, fn($q, $data) => $q->whereDate('data_vencimento', '>=', $data))
-            ->when($filtros['data_fim'] ?? null, fn($q, $data) => $q->whereDate('data_vencimento', '<=', $data))
-            ->when($filtros['categoria_id'] ?? null, fn($q, $ids) => $q->whereIn('categoria_id', $ids))
-            ->when($filtros['tipo'] ?? null, fn($q, $tipos) => $q->whereIn('tipo', $tipos))
-            ->when($filtros['status'] ?? null, fn($q, $status) => $q->whereIn('status', $status))
+            ->when($filtros['data_inicio'] ?? null, fn ($q, $data) => $q->whereDate('data_vencimento', '>=', $data))
+            ->when($filtros['data_fim'] ?? null, fn ($q, $data) => $q->whereDate('data_vencimento', '<=', $data))
+            ->when($filtros['categoria_id'] ?? null, fn ($q, $ids) => $q->whereIn('categoria_id', $ids))
+            ->when($filtros['tipo'] ?? null, fn ($q, $tipos) => $q->whereIn('tipo', $tipos))
+            ->when($filtros['status'] ?? null, fn ($q, $status) => $q->whereIn('status', $status))
             ->orderBy('data_vencimento')
             ->get();
     }

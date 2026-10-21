@@ -20,11 +20,15 @@ class CategoriaResource extends Resource
     protected static ?string $model = Categoria::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+
     protected static string|UnitEnum|null $navigationGroup = 'Financeiro';
+
     protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'Categoria';
+
     protected static ?string $pluralModelLabel = 'Categorias';
+
     protected static ?string $navigationLabel = 'Categorias';
 
     public static function form(Schema $schema): Schema

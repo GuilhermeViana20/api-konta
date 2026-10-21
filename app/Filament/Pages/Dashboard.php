@@ -2,20 +2,20 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Widgets\ProximosPagamentos;
 use App\Filament\Widgets\ContasVencendoWidget;
 use App\Filament\Widgets\DespesasPorCategoriaChart;
 use App\Filament\Widgets\DespesasProxMesChart;
+use App\Filament\Widgets\ProximosPagamentos;
 use App\Filament\Widgets\ResumoFinanceiroWidget;
 use App\Models\Caixinha;
 use App\Models\Transacao;
+use BackedEnum;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use BackedEnum;
 use Filament\Support\Icons\Heroicon;
 
 class Dashboard extends BaseDashboard
@@ -23,7 +23,9 @@ class Dashboard extends BaseDashboard
     use HasFiltersForm;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
+
     protected static ?int $navigationSort = -2;
+
     protected static ?string $navigationLabel = 'Painel de Controle';
 
     public function filtersForm(Schema $schema): Schema
@@ -73,7 +75,7 @@ class Dashboard extends BaseDashboard
                             ->default('todos')
                             ->native(false)
                             ->live(),
-                    ])
+                    ]),
             ]);
     }
 
@@ -92,8 +94,8 @@ class Dashboard extends BaseDashboard
         $mesesCadastrados = Transacao::query()
             ->where('usuario_id', auth()->id())
             ->where('tipo', 'despesa')
-            ->selectRaw("DISTINCT DATE_FORMAT(data_vencimento, '%Y-%m') as mes")
-            ->pluck('mes')
+            ->pluck('data_vencimento')
+            ->map(fn ($data) => Carbon::parse($data)->format('Y-m'))
             ->push(now()->format('Y-m'))
             ->unique()
             ->sortDesc();

@@ -20,11 +20,15 @@ class CaixinhaResource extends Resource
     protected static ?string $model = Caixinha::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWallet;
+
     protected static string|UnitEnum|null $navigationGroup = 'Financeiro';
+
     protected static ?int $navigationSort = 2;
 
     protected static ?string $modelLabel = 'Caixinha';
+
     protected static ?string $pluralModelLabel = 'Caixinhas';
+
     protected static ?string $navigationLabel = 'Caixinhas';
 
     public static function form(Schema $schema): Schema

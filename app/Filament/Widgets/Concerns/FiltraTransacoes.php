@@ -33,7 +33,7 @@ trait FiltraTransacoes
             ->where('tipo', 'despesa') // dashboard de contas a pagar
             ->whereBetween('data_vencimento', [$inicio, $fim])
             ->when($caixinhaId, fn (Builder $q) => $q->where('caixinha_id', $caixinhaId))
-            ->when($status === 'pagos', fn (Builder $q) => $q->where('status', 'efetivada'))
+            ->when($status === 'pagos', fn (Builder $q) => $q->where('status', 'paga'))
             ->when($status === 'pendentes', fn (Builder $q) => $q
                 ->where('status', 'pendente')
                 ->where('data_vencimento', '>=', now()))
