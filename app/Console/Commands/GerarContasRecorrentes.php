@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Transacao;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class GerarContasRecorrentes extends Command
@@ -21,6 +22,7 @@ class GerarContasRecorrentes extends Command
 
         foreach ($templates as $template) {
             $origemId = $template->transacao_origem_id ?? $template->id;
+            $vencimento = Carbon::parse($template->data_vencimento)->addMonthNoOverflow();
 
             $jaExiste = Transacao::where(function ($q) use ($origemId) {
                 $q->where('transacao_origem_id', $origemId)->orWhere('id', $origemId);
@@ -38,7 +40,6 @@ class GerarContasRecorrentes extends Command
 
             Transacao::create([
                 'usuario_id' => $template->usuario_id,
-                'conta_id' => $template->conta_id,
                 'categoria_id' => $template->categoria_id,
                 'caixinha_id' => $template->caixinha_id,
                 'transacao_origem_id' => $origemId,
@@ -47,7 +48,7 @@ class GerarContasRecorrentes extends Command
                 'valor' => $template->valor,
                 'forma_pagamento' => $template->forma_pagamento,
                 'status' => 'pendente',
-                'data_vencimento' => $template->data_vencimento->copy()->addMonthNoOverflow(),
+                'data_vencimento' => $vencimento,
                 'data_pagamento' => null,
                 'recorrente' => $template->recorrente,
                 'parcela_atual' => $template->qtd_parcelas > 1 ? $template->parcela_atual + 1 : 1,

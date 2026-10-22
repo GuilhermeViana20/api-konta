@@ -117,7 +117,7 @@ class TransacoesTable
                         ->modalHeading('Duplicar transação')
                         ->modalDescription('Cria uma cópia pendente. Escolha o vencimento da nova conta.')
                         ->fillForm(fn (Transacao $record): array => [
-                            'data_vencimento' => $record->data_vencimento->copy()->addMonthNoOverflow()->toDateString(),
+                            'data_vencimento' => Carbon::parse($record->data_vencimento)->addMonthNoOverflow()->toDateString(),
                         ])
                         ->schema([
                             DatePicker::make('data_vencimento')

@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Widgets\Concerns\FiltraTransacoes;
+use App\Models\Transacao;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -13,11 +14,7 @@ class ProximosPagamentos extends BaseWidget
     use FiltraTransacoes, InteractsWithPageFilters;
 
     // ProximosPagamentos.php
-    protected int|string|array $columnSpan = [
-        'default' => 'full',
-        'md' => 'full',
-        'xl' => 'full',
-    ];
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -32,7 +29,7 @@ class ProximosPagamentos extends BaseWidget
                     ->label('Pago em')
                     ->date('d/m/Y')
                     ->placeholder('Em aberto')
-                    ->color(fn ($record) => $record->status === 'paga' ? 'success' : 'danger'),
+                    ->color(fn (Transacao $record) => $record->status === 'paga' ? 'success' : 'danger'),
             ])
             ->paginated([5, 10, 25])
             ->defaultPaginationPageOption(10)

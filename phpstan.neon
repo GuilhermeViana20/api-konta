@@ -4,6 +4,6 @@ includes:
 parameters:
     paths:
         - app
-    level: 5
+    level: 3
     excludePaths:
-        - app/Console/Kernel.php
+        - app/Console/Kernel.php (?)

@@ -103,10 +103,12 @@ class Transacao extends Model
         $this->status = 'paga';
         $this->save();
 
-        if ($this->caixinha) {
+        $caixinha = $this->caixinha;
+
+        if ($caixinha !== null) {
             match ($this->tipo) {
-                'despesa' => $this->caixinha->sacar((float) $this->valor, $this->descricao, $this->id),
-                'receita' => $this->caixinha->depositar((float) $this->valor, $this->descricao, $this->id),
+                'despesa' => $caixinha->sacar((float) $this->valor, $this->descricao, $this->id),
+                'receita' => $caixinha->depositar((float) $this->valor, $this->descricao, $this->id),
                 default => null,
             };
         }

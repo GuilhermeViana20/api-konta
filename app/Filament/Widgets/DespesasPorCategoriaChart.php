@@ -36,10 +36,10 @@ class DespesasPorCategoriaChart extends ChartWidget
                 [
                     'label' => 'Despesas',
                     'data' => $dados->map(fn ($r) => round((float) $r->total, 2))->all(),
-                    'backgroundColor' => $dados->map(fn ($r) => $r->categoria?->cor ?? '#9ca3af')->all(),
+                    'backgroundColor' => $dados->map(fn (object $r) => $r->categoria?->cor ?? '#9ca3af')->all(),
                 ],
             ],
-            'labels' => $dados->map(fn ($r) => $r->categoria?->nome ?? 'Sem categoria')->all(),
+            'labels' => $dados->map(fn (object $r) => $r->categoria?->nome ?? 'Sem categoria')->all(),
         ];
     }
 }

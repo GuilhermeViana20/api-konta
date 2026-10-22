@@ -9,7 +9,7 @@ class TransacaoRepository
 {
     public function buscarPorPeriodo(int $usuarioId, string $inicio, string $fim): Collection
     {
-        return Transacao::with(['categoria:id,nome,cor', 'conta:id,nome'])
+        return Transacao::with(['categoria:id,nome,cor'])
             ->where('usuario_id', $usuarioId)
             ->whereBetween('data_vencimento', [$inicio, $fim])
             ->orderBy('data_vencimento')
