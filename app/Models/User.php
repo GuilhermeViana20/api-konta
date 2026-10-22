@@ -9,6 +9,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -37,5 +38,15 @@ class User extends Authenticatable
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->email === config('app.admin_email');
+    }
+
+    public function categorias(): HasMany
+    {
+        return $this->hasMany(Categoria::class, 'usuario_id');
+    }
+
+    public function caixinhas(): HasMany
+    {
+        return $this->hasMany(Caixinha::class, 'usuario_id');
     }
 }
