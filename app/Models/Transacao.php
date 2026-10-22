@@ -103,6 +103,7 @@ class Transacao extends Model
         $this->status = 'paga';
         $this->save();
 
+        /** @var Caixinha|null $caixinha */
         $caixinha = $this->caixinha;
 
         if ($caixinha !== null) {

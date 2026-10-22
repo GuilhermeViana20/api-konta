@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Transacao;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -32,7 +33,7 @@ class ContasVencendoWidget extends TableWidget
                 TextColumn::make('data_vencimento')
                     ->label('Vencimento')
                     ->date('d/m/Y')
-                    ->color(fn (Transacao $record) => $record->data_vencimento->lt(today()) ? 'danger' : null),
+                    ->color(fn (Transacao $record) => Carbon::parse($record->data_vencimento)->lt(today()) ? 'danger' : null),
                 TextColumn::make('situacao')
                     ->label('Situação')
                     ->badge()

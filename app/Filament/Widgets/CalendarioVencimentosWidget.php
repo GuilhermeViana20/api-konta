@@ -48,7 +48,7 @@ class CalendarioVencimentosWidget extends FullCalendarWidget
                 return [
                     'id' => $transacao->id,
                     'title' => $transacao->descricao.' (R$ '.number_format($transacao->valor, 2, ',', '.').')',
-                    'start' => $transacao->data_vencimento->format('Y-m-d'),
+                    'start' => Carbon::parse($transacao->data_vencimento)->format('Y-m-d'),
                     'backgroundColor' => $cor,
                     'borderColor' => 'transparent',
                 ];

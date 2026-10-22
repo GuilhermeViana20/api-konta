@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Categoria;
 use App\Models\Transacao;
 use Filament\Widgets\ChartWidget;
 
@@ -35,11 +36,21 @@ class DespesasProxMesChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Despesas',
-                    'data' => $dados->map(fn ($r) => round((float) $r->total, 2))->all(),
-                    'backgroundColor' => $dados->map(fn ($r) => $r->categoria?->cor ?? '#9ca3af')->all(),
+                    'data' => $dados->map(fn (object $r) => round((float) $r->total, 2))->all(),
+                    'backgroundColor' => $dados->map(function (object $r) {
+                        /** @var Categoria|null $categoria */
+                        $categoria = $r->categoria;
+
+                        return $categoria?->cor ?? '#9ca3af';
+                    })->all(),
                 ],
             ],
-            'labels' => $dados->map(fn ($r) => $r->categoria?->nome ?? 'Sem categoria')->all(),
+            'labels' => $dados->map(function (object $r) {
+                /** @var Categoria|null $categoria */
+                $categoria = $r->categoria;
+
+                return $categoria?->nome ?? 'Sem categoria';
+            })->all(),
         ];
     }
 }

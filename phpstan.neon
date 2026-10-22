@@ -7,3 +7,12 @@ parameters:
     level: 3
     excludePaths:
         - app/Console/Kernel.php (?)
+    ignoreErrors:
+        # Filament InteractsWithForms expõe $form via __get
+        -
+            message: '#Access to an undefined property App\\Filament\\Pages\\RelatorioTransacoes::\$form#'
+            path: app/Filament/Pages/RelatorioTransacoes.php
+        # selectRaw cria o atributo dinâmico $total
+        -
+            message: '#Access to an undefined property App\\Models\\Transacao::\$total#'
+            path: app/Filament/Widgets/Despesas*.php
